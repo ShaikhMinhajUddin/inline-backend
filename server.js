@@ -60,8 +60,4 @@ app.listen(PORT, HOST, () => {
     console.log(`🚀 Server running on http://${HOST}:${PORT}`);
     console.log(`🌐 External URL: https://data-production-fc00.up.railway.app`);
     console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
-<<<<<<< HEAD
 });
-=======
-});
->>>>>>> 8edc8c1e2eb641926650d3e84f87ef3ab3e56e7e
