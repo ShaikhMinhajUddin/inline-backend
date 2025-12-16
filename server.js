@@ -4,47 +4,60 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 require('dotenv').config();
 
-console.log('=== SERVER STARTING ===');
-console.log('PORT:', process.env.PORT);
-console.log('NODE_ENV:', process.env.NODE_ENV);
-console.log('MONGODB_URI exists:', !!process.env.MONGODB_URI);
-
 const app = express();
 
-// Basic middleware first
+// Middleware
 app.use(cors());
 app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
-// Test route - VERY SIMPLE
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+.then(() => console.log('✅ MongoDB Connected Successfully'))
+.catch(err => console.error('❌ MongoDB Connection Error:', err));
+
+// Import Routes
+const formRoutes = require('./routes/formRoutes');
+app.use('/api/forms', formRoutes);
+
+// Test Route
 app.get('/', (req, res) => {
-    console.log('Root route called');
     res.json({ 
-        message: 'API is working!',
-        timestamp: new Date().toISOString()
+        message: 'Factory Management System API is running!',
+        status: 'active',
+        version: '1.0.0',
+        environment: process.env.NODE_ENV || 'development',
+        baseUrl: `https://${req.get('host')}`,
+        endpoints: [
+            '/api/forms/cutting',
+            '/api/forms/packing',
+            '/api/forms/overlock', 
+            '/api/forms/grading',
+            '/api/forms/single-needle',
+            '/api/forms/all-data',
+            '/api/forms/dashboard-stats'
+        ]
     });
 });
 
-// Test cutting route
-app.get('/api/forms/cutting', (req, res) => {
-    console.log('Cutting route called');
-    res.json({ 
-        message: 'Cutting endpoint',
-        data: []
+// Health check for Railway
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
     });
 });
 
-// Try to connect MongoDB but don't block server start
-if (process.env.MONGODB_URI) {
-    mongoose.connect(process.env.MONGODB_URI, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    })
-    .then(() => console.log('✅ MongoDB Connected'))
-    .catch(err => console.log('⚠️ MongoDB Connection Error:', err.message));
-}
-
+// Start Server - FIX FOR RAILWAY
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-    console.log(`🔗 URL: https://data-production-fc00.up.railway.app`);
+const HOST = '0.0.0.0'; // Railway requires this, NOT localhost
+
+app.listen(PORT, HOST, () => {
+    console.log(`🚀 Server running on http://${HOST}:${PORT}`);
+    console.log(`🌐 External URL: https://data-production-fc00.up.railway.app`);
+    console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
 });
