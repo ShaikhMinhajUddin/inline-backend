@@ -81,6 +81,7 @@ const overlockSchema = new mongoose.Schema({
     
     // Machine Details
     mcNo: { type: String, required: true },
+    inspectionRound: { type: String, required: true },
     time: { type: String },
     
     // Product Information
