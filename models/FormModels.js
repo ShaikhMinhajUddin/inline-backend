@@ -173,40 +173,155 @@ const gradingSchema = new mongoose.Schema({
 });
 
 // Stitching (Single Needle) Form Schema
+// Stitching (Single Needle) Form Schema - UPDATED VERSION
 const singleNeedleSchema = new mongoose.Schema({
-    factoryUnit: { type: String, required: true },
-    ppNo: { type: String, required: true },
+    // Basic Information
     date: { type: Date, default: Date.now },
-    department: { type: String, required: true },
-    
-    mcNo: { type: String, required: true },
-    time: { type: String },
-    
     buyerName: { type: String, required: true },
-    articleName: { type: String, required: true },
-    size: { type: String, required: true },
+    locationName: { type: String, required: true },
+    poNumber: { type: String, required: true },
+    description: String,
     color: { type: String, required: true },
-    spi: { type: String },
+    itemStyle: { type: String, required: true },
+    casePack: String,
     
-    // Defects
-    openCorner: { type: Boolean, default: false },
-    insecureCorner: { type: Boolean, default: false },
-    hemAlter: { type: Boolean, default: false },
-    ribbonAlter: { type: Boolean, default: false },
-    incureLabel: { type: Boolean, default: false },
-    slantLabel: { type: Boolean, default: false },
-    missLabel: { type: Boolean, default: false },
-    jumpStitch: { type: Boolean, default: false },
-    rawEdge: { type: Boolean, default: false },
-    stitchOnPile: { type: Boolean, default: false },
-    oilStain: { type: Boolean, default: false },
-    dustMark: { type: Boolean, default: false },
+    // Quantity Information
+    quantityOrderedCTN: { type: Number, required: true },
+    quantityAvailableCTN: { type: Number, required: true },
+    balanceQuantityCTN: Number,
+    balanceQuantityPcs: Number,
+    cartonMeasurement: String,
     
-    checkPcs: { type: Number, required: true },
-    totalDefects: { type: Number, default: 0 },
-    remarks: { type: String },
+    // AQL Information
+    aqlLevel: { type: String, default: '2.5' },
+    lotSize: { type: Number, required: true },
+    status: String,
+    sampleSize: Number,
     
-    createdAt: { type: Date, default: Date.now }
+    // Inspection Conclusion
+    measurementConfirm: Boolean,
+    onsiteCheckConfirm: Boolean,
+    packingCheckConfirm: Boolean,
+    visualCheckConfirm: Boolean,
+    
+    // Accepted Defects
+    acceptedMajorCutting: Number,
+    acceptedMinorCutting: Number,
+    acceptedMajorStitching: Number,
+    acceptedMinorStitching: Number,
+    acceptedMajorPacking: Number,
+    acceptedMinorPacking: Number,
+    
+    // Total Faults
+    totalMajorFaults: Number,
+    totalMinorFaults: Number,
+    packingDescription: String,
+    
+    // Packing Inspection (Major/Minor)
+    cartonMarksIncorrectMajor: Boolean,
+    cartonMarksIncorrectMinor: Boolean,
+    poorCartonQualityMajor: Boolean,
+    poorCartonQualityMinor: Boolean,
+    cartonSizeOutOfSpecMajor: Boolean,
+    cartonSizeOutOfSpecMinor: Boolean,
+    incorrectAssortmentMajor: Boolean,
+    incorrectAssortmentMinor: Boolean,
+    missingBlisterMajor: Boolean,
+    missingBlisterMinor: Boolean,
+    mixedShadeMajor: Boolean,
+    mixedShadeMinor: Boolean,
+    missingHangTagMajor: Boolean,
+    missingHangTagMinor: Boolean,
+    wrongHangTagMajor: Boolean,
+    wrongHangTagMinor: Boolean,
+    defectedHangTagMajor: Boolean,
+    defectedHangTagMinor: Boolean,
+    otherPackingMajor: Boolean,
+    otherPackingMinor: Boolean,
+    otherPackingDescription: String,
+    
+    // Measurement & Weight
+    measurementOutOfToleranceMajor: Boolean,
+    measurementOutOfToleranceMinor: Boolean,
+    weightOutOfToleranceMajor: Boolean,
+    weightOutOfToleranceMinor: Boolean,
+    
+    // Defects Description
+    weavingFaultsMajor: Boolean,
+    weavingFaultsMinor: Boolean,
+    stainsDirtOilMajor: Boolean,
+    stainsDirtOilMinor: Boolean,
+    stitchingFaultsMajor: Boolean,
+    stitchingFaultsMinor: Boolean,
+    stitchOnPileMajor: Boolean,
+    stitchOnPileMinor: Boolean,
+    mixingYarnMajor: Boolean,
+    mixingYarnMinor: Boolean,
+    labelingFaultsMajor: Boolean,
+    labelingFaultsMinor: Boolean,
+    wrongLabelPlacementMajor: Boolean,
+    wrongLabelPlacementMinor: Boolean,
+    dyeingSpotsMajor: Boolean,
+    dyeingSpotsMinor: Boolean,
+    lesserMajor: Boolean,
+    lesserMinor: Boolean,
+    streaksMajor: Boolean,
+    streaksMinor: Boolean,
+    yarnFlyMajor: Boolean,
+    yarnFlyMinor: Boolean,
+    yarnContaminationMajor: Boolean,
+    yarnContaminationMinor: Boolean,
+    untrimmedThreadsMajor: Boolean,
+    untrimmedThreadsMinor: Boolean,
+    otherDefectsMajor: Boolean,
+    otherDefectsMinor: Boolean,
+    otherDefectsDescription: String,
+    
+    // Remarks
+    remarks: String,
+    
+    // Final Status
+    pass: Boolean,
+    fail: Boolean,
+    pending: Boolean,
+    abortedTrip: Boolean,
+    
+    // Additional Information
+    inspectorName: { type: String, required: true },
+    inspectionDate: { type: Date, default: Date.now },
+    houseKeeping: Boolean,
+    lighting: Boolean,
+    brokenNeedle: Boolean,
+    
+    // Old fields (keep for backward compatibility)
+    factoryUnit: String,
+    ppNo: String,
+    department: String,
+    mcNo: String,
+    time: String,
+    articleName: String,
+    size: String,
+    spi: String,
+    
+    // Old defects (keep for backward compatibility)
+    openCorner: Boolean,
+    insecureCorner: Boolean,
+    hemAlter: Boolean,
+    ribbonAlter: Boolean,
+    incureLabel: Boolean,
+    slantLabel: Boolean,
+    missLabel: Boolean,
+    jumpStitch: Boolean,
+    rawEdge: Boolean,
+    stitchOnPile: Boolean,
+    oilStain: Boolean,
+    dustMark: Boolean,
+    checkPcs: Number,
+    totalDefects: Number,
+    
+    // Metadata
+    createdAt: { type: Date, default: Date.now },
+    updatedAt: { type: Date, default: Date.now }
 });
 
 // Create Models

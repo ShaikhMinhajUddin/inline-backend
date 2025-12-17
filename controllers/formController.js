@@ -1,6 +1,7 @@
+// controllers/formController.js - UPDATED
 const { Cutting, Packing, Overlock, Grading, SingleNeedle } = require('../models/FormModels');
 
-// ========== CUTTING FORM CONTROLLERS ==========
+// ========== CUTTING FORM CONTROLLERS (unchanged) ==========
 exports.createCutting = async (req, res) => {
     try {
         const cuttingData = new Cutting(req.body);
@@ -19,7 +20,7 @@ exports.createCutting = async (req, res) => {
     }
 };
 
-// ========== GET ALL FORMS DATA ==========
+// ========== GET ALL FORMS DATA (update for new fields) ==========
 exports.getAllFormsData = async (req, res) => {
     try {
         const [cutting, packing, overlock, grading, singleNeedle] = await Promise.all([
@@ -30,14 +31,21 @@ exports.getAllFormsData = async (req, res) => {
             SingleNeedle.find().sort({ createdAt: -1 })
         ]);
 
+        // Add formType to each record for AllDataView compatibility
+        const cuttingWithType = cutting.map(item => ({ ...item._doc, formType: 'cutting' }));
+        const packingWithType = packing.map(item => ({ ...item._doc, formType: 'packing' }));
+        const overlockWithType = overlock.map(item => ({ ...item._doc, formType: 'overlock' }));
+        const gradingWithType = grading.map(item => ({ ...item._doc, formType: 'grading' }));
+        const singleNeedleWithType = singleNeedle.map(item => ({ ...item._doc, formType: 'single-needle' }));
+
         res.status(200).json({
             success: true,
             data: {
-                cutting,
-                packing,
-                overlock,
-                grading,
-                singleNeedle
+                cutting: cuttingWithType,
+                packing: packingWithType,
+                overlock: overlockWithType,
+                grading: gradingWithType,
+                singleNeedle: singleNeedleWithType
             },
             counts: {
                 cutting: cutting.length,
@@ -57,7 +65,7 @@ exports.getAllFormsData = async (req, res) => {
     }
 };
 
-// ========== GET DASHBOARD STATISTICS ==========
+// ========== GET DASHBOARD STATISTICS (unchanged) ==========
 exports.getDashboardStats = async (req, res) => {
     try {
         const today = new Date();
@@ -73,7 +81,6 @@ exports.getDashboardStats = async (req, res) => {
 
         const totalToday = cutting.length + packing.length + overlock.length + grading.length + singleNeedle.length;
         
-        // Calculate quality scores (example logic)
         const totalInspected = grading.reduce((sum, item) => sum + (item.inspection || 0), 0);
         const totalPassed = grading.reduce((sum, item) => sum + (item.pass || 0), 0);
         const qualityScore = totalInspected > 0 ? Math.round((totalPassed / totalInspected) * 100) : 0;
@@ -90,7 +97,7 @@ exports.getDashboardStats = async (req, res) => {
                     singleNeedle: singleNeedle.length
                 },
                 qualityScore,
-                pendingReviews: 0 // You can add logic for this
+                pendingReviews: 0
             }
         });
     } catch (error) {
@@ -102,7 +109,7 @@ exports.getDashboardStats = async (req, res) => {
     }
 };
 
-
+// ========== OTHER GET ALL CONTROLLERS (unchanged) ==========
 exports.getAllCutting = async (req, res) => {
     try {
         const cuttingData = await Cutting.find().sort({ createdAt: -1 });
@@ -115,47 +122,6 @@ exports.getAllCutting = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error fetching cutting data',
-            error: error.message
-        });
-    }
-};
-
-exports.getCuttingById = async (req, res) => {
-    try {
-        const cuttingData = await Cutting.findById(req.params.id);
-        if (!cuttingData) {
-            return res.status(404).json({
-                success: false,
-                message: 'Cutting data not found'
-            });
-        }
-        res.status(200).json({
-            success: true,
-            data: cuttingData
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error fetching cutting data',
-            error: error.message
-        });
-    }
-};
-
-// ========== PACKING FORM CONTROLLERS ==========
-exports.createPacking = async (req, res) => {
-    try {
-        const packingData = new Packing(req.body);
-        const savedData = await packingData.save();
-        res.status(201).json({
-            success: true,
-            message: 'Packing form submitted successfully',
-            data: savedData
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error submitting packing form',
             error: error.message
         });
     }
@@ -178,25 +144,6 @@ exports.getAllPacking = async (req, res) => {
     }
 };
 
-// ========== OVERLOCK FORM CONTROLLERS ==========
-exports.createOverlock = async (req, res) => {
-    try {
-        const overlockData = new Overlock(req.body);
-        const savedData = await overlockData.save();
-        res.status(201).json({
-            success: true,
-            message: 'Overlock form submitted successfully',
-            data: savedData
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error submitting overlock form',
-            error: error.message
-        });
-    }
-};
-
 exports.getAllOverlock = async (req, res) => {
     try {
         const overlockData = await Overlock.find().sort({ createdAt: -1 });
@@ -209,25 +156,6 @@ exports.getAllOverlock = async (req, res) => {
         res.status(500).json({
             success: false,
             message: 'Error fetching overlock data',
-            error: error.message
-        });
-    }
-};
-
-// ========== GRADING FORM CONTROLLERS ==========
-exports.createGrading = async (req, res) => {
-    try {
-        const gradingData = new Grading(req.body);
-        const savedData = await gradingData.save();
-        res.status(201).json({
-            success: true,
-            message: 'Grading form submitted successfully',
-            data: savedData
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Error submitting grading form',
             error: error.message
         });
     }
@@ -250,20 +178,39 @@ exports.getAllGrading = async (req, res) => {
     }
 };
 
-// ========== SINGLE NEEDLE FORM CONTROLLERS ==========
+// ========== UPDATED: SINGLE NEEDLE CONTROLLERS ==========
 exports.createSingleNeedle = async (req, res) => {
     try {
+        console.log('Batch Audit Form Data Received:', req.body);
+        
+        // Validate required fields
+        const requiredFields = ['buyerName', 'locationName', 'poNumber', 'color', 'itemStyle', 
+                               'quantityOrderedCTN', 'quantityAvailableCTN', 'lotSize', 'inspectorName'];
+        
+        for (const field of requiredFields) {
+            if (!req.body[field]) {
+                return res.status(400).json({
+                    success: false,
+                    message: `${field} is required`
+                });
+            }
+        }
+        
         const singleNeedleData = new SingleNeedle(req.body);
         const savedData = await singleNeedleData.save();
+        
+        console.log('Batch Audit record saved successfully:', savedData._id);
+        
         res.status(201).json({
             success: true,
-            message: 'Single Needle form submitted successfully',
+            message: 'Batch Audit form submitted successfully',
             data: savedData
         });
     } catch (error) {
+        console.error('Error saving Batch Audit form:', error);
         res.status(500).json({
             success: false,
-            message: 'Error submitting single needle form',
+            message: 'Error submitting Batch Audit form',
             error: error.message
         });
     }
@@ -272,21 +219,73 @@ exports.createSingleNeedle = async (req, res) => {
 exports.getAllSingleNeedle = async (req, res) => {
     try {
         const singleNeedleData = await SingleNeedle.find().sort({ createdAt: -1 });
+        
+        // Add formType for AllDataView compatibility
+        const dataWithFormType = singleNeedleData.map(item => ({
+            ...item._doc,
+            formType: 'single-needle'
+        }));
+        
         res.status(200).json({
             success: true,
             count: singleNeedleData.length,
-            data: singleNeedleData
+            data: dataWithFormType
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: 'Error fetching single needle data',
+            message: 'Error fetching Batch Audit data',
             error: error.message
         });
     }
 };
 
-// ========== UPDATE AND DELETE CONTROLLERS ==========
+// ========== GET BY ID CONTROLLERS (add if missing) ==========
+exports.getCuttingById = async (req, res) => {
+    try {
+        const cuttingData = await Cutting.findById(req.params.id);
+        if (!cuttingData) {
+            return res.status(404).json({
+                success: false,
+                message: 'Cutting data not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: cuttingData
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching cutting data',
+            error: error.message
+        });
+    }
+};
+
+exports.getSingleNeedleById = async (req, res) => {
+    try {
+        const singleNeedleData = await SingleNeedle.findById(req.params.id);
+        if (!singleNeedleData) {
+            return res.status(404).json({
+                success: false,
+                message: 'Batch Audit record not found'
+            });
+        }
+        res.status(200).json({
+            success: true,
+            data: singleNeedleData
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error fetching Batch Audit record',
+            error: error.message
+        });
+    }
+};
+
+// ========== UPDATE CONTROLLERS (unchanged) ==========
 exports.updateCutting = async (req, res) => {
     try {
         const updatedData = await Cutting.findByIdAndUpdate(
@@ -378,62 +377,100 @@ exports.updateSingleNeedle = async (req, res) => {
             req.body,
             { new: true, runValidators: true }
         );
+        
+        if (!updatedData) {
+            return res.status(404).json({
+                success: false,
+                message: 'Batch Audit record not found'
+            });
+        }
+        
         res.status(200).json({
             success: true,
-            message: 'Single Needle data updated successfully',
+            message: 'Batch Audit record updated successfully',
             data: updatedData
         });
     } catch (error) {
         res.status(500).json({
             success: false,
-            message: 'Error updating single needle data',
+            message: 'Error updating Batch Audit record',
             error: error.message
         });
     }
 };
 
-// ========== DELETE CONTROLLERS ==========
+// ========== DELETE CONTROLLERS (unchanged) ==========
 exports.deleteCutting = async (req, res) => {
     try {
         await Cutting.findByIdAndDelete(req.params.id);
-        res.status(200).json({ success: true, message: "Cutting deleted" });
+        res.status(200).json({ 
+            success: true, 
+            message: "Cutting record deleted successfully" 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
 exports.deletePacking = async (req, res) => {
     try {
         await Packing.findByIdAndDelete(req.params.id);
-        res.status(200).json({ success: true, message: "Packing deleted" });
+        res.status(200).json({ 
+            success: true, 
+            message: "Packing record deleted successfully" 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
 exports.deleteOverlock = async (req, res) => {
     try {
         await Overlock.findByIdAndDelete(req.params.id);
-        res.status(200).json({ success: true, message: "Overlock deleted" });
+        res.status(200).json({ 
+            success: true, 
+            message: "Overlock record deleted successfully" 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
 exports.deleteGrading = async (req, res) => {
     try {
         await Grading.findByIdAndDelete(req.params.id);
-        res.status(200).json({ success: true, message: "Grading deleted" });
+        res.status(200).json({ 
+            success: true, 
+            message: "Grading record deleted successfully" 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
 
 exports.deleteSingleNeedle = async (req, res) => {
     try {
         await SingleNeedle.findByIdAndDelete(req.params.id);
-        res.status(200).json({ success: true, message: "Single Needle deleted" });
+        res.status(200).json({ 
+            success: true, 
+            message: "Batch Audit record deleted successfully" 
+        });
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message });
+        res.status(500).json({ 
+            success: false, 
+            message: error.message 
+        });
     }
 };
