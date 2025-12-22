@@ -1,4 +1,4 @@
-// controllers/formController.js - COMPLETE UPDATED VERSION
+// controllers/formController.js - COMPLETE UPDATED VERSION WITH DELETE ALL
 const { Cutting, Packing, Overlock, Grading, SingleNeedle } = require('../models/FormModels');
 
 // ========== CREATE FORM CONTROLLERS ==========
@@ -517,7 +517,7 @@ exports.updateSingleNeedle = async (req, res) => {
     }
 };
 
-// ========== DELETE CONTROLLERS ==========
+// ========== DELETE SINGLE CONTROLLERS ==========
 exports.deleteCutting = async (req, res) => {
     try {
         await Cutting.findByIdAndDelete(req.params.id);
@@ -589,6 +589,93 @@ exports.deleteSingleNeedle = async (req, res) => {
         res.status(500).json({ 
             success: false, 
             message: error.message 
+        });
+    }
+};
+
+// ========== DELETE ALL CONTROLLERS ==========
+
+exports.deleteAllCutting = async (req, res) => {
+    try {
+        const result = await Cutting.deleteMany({});
+        res.status(200).json({
+            success: true,
+            message: `Deleted ${result.deletedCount} cutting records`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting all cutting data',
+            error: error.message
+        });
+    }
+};
+
+exports.deleteAllPacking = async (req, res) => {
+    try {
+        const result = await Packing.deleteMany({});
+        res.status(200).json({
+            success: true,
+            message: `Deleted ${result.deletedCount} packing records`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting all packing data',
+            error: error.message
+        });
+    }
+};
+
+exports.deleteAllOverlock = async (req, res) => {
+    try {
+        const result = await Overlock.deleteMany({});
+        res.status(200).json({
+            success: true,
+            message: `Deleted ${result.deletedCount} overlock records`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting all overlock data',
+            error: error.message
+        });
+    }
+};
+
+exports.deleteAllGrading = async (req, res) => {
+    try {
+        const result = await Grading.deleteMany({});
+        res.status(200).json({
+            success: true,
+            message: `Deleted ${result.deletedCount} grading records`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting all grading data',
+            error: error.message
+        });
+    }
+};
+
+exports.deleteAllSingleNeedle = async (req, res) => {
+    try {
+        const result = await SingleNeedle.deleteMany({});
+        res.status(200).json({
+            success: true,
+            message: `Deleted ${result.deletedCount} single needle records`,
+            deletedCount: result.deletedCount
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Error deleting all single needle data',
+            error: error.message
         });
     }
 };
