@@ -1,10 +1,11 @@
-// controllers/formController.js - COMPLETE UPDATED VERSION WITH DELETE ALL
+// controllers/formController.js - COMPLETE CLEAN VERSION WITH DELETE ALL
 const { Cutting, Packing, Overlock, Grading, SingleNeedle } = require('../models/FormModels');
 
 // ========== CREATE FORM CONTROLLERS ==========
 
 exports.createCutting = async (req, res) => {
     try {
+        console.log('📤 Creating cutting data:', req.body);
         const cuttingData = new Cutting(req.body);
         const savedData = await cuttingData.save();
         res.status(201).json({
@@ -13,6 +14,7 @@ exports.createCutting = async (req, res) => {
             data: savedData
         });
     } catch (error) {
+        console.error('❌ Error creating cutting:', error);
         res.status(500).json({
             success: false,
             message: 'Error submitting cutting form',
@@ -23,6 +25,7 @@ exports.createCutting = async (req, res) => {
 
 exports.createPacking = async (req, res) => {
     try {
+        console.log('📤 Creating packing data:', req.body);
         const packingData = new Packing(req.body);
         const savedData = await packingData.save();
         res.status(201).json({
@@ -31,6 +34,7 @@ exports.createPacking = async (req, res) => {
             data: savedData
         });
     } catch (error) {
+        console.error('❌ Error creating packing:', error);
         res.status(500).json({
             success: false,
             message: 'Error submitting packing form',
@@ -41,6 +45,7 @@ exports.createPacking = async (req, res) => {
 
 exports.createOverlock = async (req, res) => {
     try {
+        console.log('📤 Creating overlock data:', req.body);
         const overlockData = new Overlock(req.body);
         const savedData = await overlockData.save();
         res.status(201).json({
@@ -49,6 +54,7 @@ exports.createOverlock = async (req, res) => {
             data: savedData
         });
     } catch (error) {
+        console.error('❌ Error creating overlock:', error);
         res.status(500).json({
             success: false,
             message: 'Error submitting overlock form',
@@ -59,6 +65,7 @@ exports.createOverlock = async (req, res) => {
 
 exports.createGrading = async (req, res) => {
     try {
+        console.log('📤 Creating grading data:', req.body);
         const gradingData = new Grading(req.body);
         const savedData = await gradingData.save();
         res.status(201).json({
@@ -67,6 +74,7 @@ exports.createGrading = async (req, res) => {
             data: savedData
         });
     } catch (error) {
+        console.error('❌ Error creating grading:', error);
         res.status(500).json({
             success: false,
             message: 'Error submitting grading form',
@@ -77,32 +85,16 @@ exports.createGrading = async (req, res) => {
 
 exports.createSingleNeedle = async (req, res) => {
     try {
-        console.log('Batch Audit Form Data Received:', req.body);
-        
-        const requiredFields = ['buyerName', 'locationName', 'poNumber', 'color', 'itemStyle', 
-                               'quantityOrderedCTN', 'quantityAvailableCTN', 'lotSize', 'inspectorName'];
-        
-        for (const field of requiredFields) {
-            if (!req.body[field]) {
-                return res.status(400).json({
-                    success: false,
-                    message: `${field} is required`
-                });
-            }
-        }
-        
+        console.log('📤 Creating single needle data:', req.body);
         const singleNeedleData = new SingleNeedle(req.body);
         const savedData = await singleNeedleData.save();
-        
-        console.log('Batch Audit record saved successfully:', savedData._id);
-        
         res.status(201).json({
             success: true,
             message: 'Batch Audit form submitted successfully',
             data: savedData
         });
     } catch (error) {
-        console.error('Error saving Batch Audit form:', error);
+        console.error('❌ Error creating single needle:', error);
         res.status(500).json({
             success: false,
             message: 'Error submitting Batch Audit form',
@@ -127,6 +119,7 @@ exports.getCuttingById = async (req, res) => {
             data: cuttingData
         });
     } catch (error) {
+        console.error('❌ Error getting cutting by id:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching cutting data',
@@ -149,6 +142,7 @@ exports.getPackingById = async (req, res) => {
             data: packingData
         });
     } catch (error) {
+        console.error('❌ Error getting packing by id:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching packing data',
@@ -171,6 +165,7 @@ exports.getOverlockById = async (req, res) => {
             data: overlockData
         });
     } catch (error) {
+        console.error('❌ Error getting overlock by id:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching overlock data',
@@ -193,6 +188,7 @@ exports.getGradingById = async (req, res) => {
             data: gradingData
         });
     } catch (error) {
+        console.error('❌ Error getting grading by id:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching grading data',
@@ -215,6 +211,7 @@ exports.getSingleNeedleById = async (req, res) => {
             data: singleNeedleData
         });
     } catch (error) {
+        console.error('❌ Error getting single needle by id:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching Batch Audit record',
@@ -234,20 +231,14 @@ exports.getAllFormsData = async (req, res) => {
             SingleNeedle.find().sort({ createdAt: -1 })
         ]);
 
-        const cuttingWithType = cutting.map(item => ({ ...item._doc, formType: 'cutting' }));
-        const packingWithType = packing.map(item => ({ ...item._doc, formType: 'packing' }));
-        const overlockWithType = overlock.map(item => ({ ...item._doc, formType: 'overlock' }));
-        const gradingWithType = grading.map(item => ({ ...item._doc, formType: 'grading' }));
-        const singleNeedleWithType = singleNeedle.map(item => ({ ...item._doc, formType: 'single-needle' }));
-
         res.status(200).json({
             success: true,
             data: {
-                cutting: cuttingWithType,
-                packing: packingWithType,
-                overlock: overlockWithType,
-                grading: gradingWithType,
-                singleNeedle: singleNeedleWithType
+                cutting: cutting,
+                packing: packing,
+                overlock: overlock,
+                grading: grading,
+                singleNeedle: singleNeedle
             },
             counts: {
                 cutting: cutting.length,
@@ -259,6 +250,7 @@ exports.getAllFormsData = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error('❌ Error getting all forms data:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching all forms data',
@@ -303,6 +295,7 @@ exports.getDashboardStats = async (req, res) => {
             }
         });
     } catch (error) {
+        console.error('❌ Error getting dashboard stats:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching dashboard stats',
@@ -321,6 +314,7 @@ exports.getAllCutting = async (req, res) => {
             data: cuttingData
         });
     } catch (error) {
+        console.error('❌ Error getting all cutting:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching cutting data',
@@ -338,6 +332,7 @@ exports.getAllPacking = async (req, res) => {
             data: packingData
         });
     } catch (error) {
+        console.error('❌ Error getting all packing:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching packing data',
@@ -355,6 +350,7 @@ exports.getAllOverlock = async (req, res) => {
             data: overlockData
         });
     } catch (error) {
+        console.error('❌ Error getting all overlock:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching overlock data',
@@ -372,6 +368,7 @@ exports.getAllGrading = async (req, res) => {
             data: gradingData
         });
     } catch (error) {
+        console.error('❌ Error getting all grading:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching grading data',
@@ -383,18 +380,13 @@ exports.getAllGrading = async (req, res) => {
 exports.getAllSingleNeedle = async (req, res) => {
     try {
         const singleNeedleData = await SingleNeedle.find().sort({ createdAt: -1 });
-        
-        const dataWithFormType = singleNeedleData.map(item => ({
-            ...item._doc,
-            formType: 'single-needle'
-        }));
-        
         res.status(200).json({
             success: true,
             count: singleNeedleData.length,
-            data: dataWithFormType
+            data: singleNeedleData
         });
     } catch (error) {
+        console.error('❌ Error getting all single needle:', error);
         res.status(500).json({
             success: false,
             message: 'Error fetching Batch Audit data',
@@ -417,6 +409,7 @@ exports.updateCutting = async (req, res) => {
             data: updatedData
         });
     } catch (error) {
+        console.error('❌ Error updating cutting:', error);
         res.status(500).json({
             success: false,
             message: 'Error updating cutting data',
@@ -438,6 +431,7 @@ exports.updatePacking = async (req, res) => {
             data: updatedData
         });
     } catch (error) {
+        console.error('❌ Error updating packing:', error);
         res.status(500).json({
             success: false,
             message: 'Error updating packing data',
@@ -459,6 +453,7 @@ exports.updateOverlock = async (req, res) => {
             data: updatedData
         });
     } catch (error) {
+        console.error('❌ Error updating overlock:', error);
         res.status(500).json({
             success: false,
             message: 'Error updating overlock data',
@@ -480,6 +475,7 @@ exports.updateGrading = async (req, res) => {
             data: updatedData
         });
     } catch (error) {
+        console.error('❌ Error updating grading:', error);
         res.status(500).json({
             success: false,
             message: 'Error updating grading data',
@@ -509,6 +505,7 @@ exports.updateSingleNeedle = async (req, res) => {
             data: updatedData
         });
     } catch (error) {
+        console.error('❌ Error updating single needle:', error);
         res.status(500).json({
             success: false,
             message: 'Error updating Batch Audit record',
@@ -526,6 +523,7 @@ exports.deleteCutting = async (req, res) => {
             message: "Cutting record deleted successfully" 
         });
     } catch (error) {
+        console.error('❌ Error deleting cutting:', error);
         res.status(500).json({ 
             success: false, 
             message: error.message 
@@ -541,6 +539,7 @@ exports.deletePacking = async (req, res) => {
             message: "Packing record deleted successfully" 
         });
     } catch (error) {
+        console.error('❌ Error deleting packing:', error);
         res.status(500).json({ 
             success: false, 
             message: error.message 
@@ -556,6 +555,7 @@ exports.deleteOverlock = async (req, res) => {
             message: "Overlock record deleted successfully" 
         });
     } catch (error) {
+        console.error('❌ Error deleting overlock:', error);
         res.status(500).json({ 
             success: false, 
             message: error.message 
@@ -571,6 +571,7 @@ exports.deleteGrading = async (req, res) => {
             message: "Grading record deleted successfully" 
         });
     } catch (error) {
+        console.error('❌ Error deleting grading:', error);
         res.status(500).json({ 
             success: false, 
             message: error.message 
@@ -586,6 +587,7 @@ exports.deleteSingleNeedle = async (req, res) => {
             message: "Batch Audit record deleted successfully" 
         });
     } catch (error) {
+        console.error('❌ Error deleting single needle:', error);
         res.status(500).json({ 
             success: false, 
             message: error.message 
@@ -597,13 +599,16 @@ exports.deleteSingleNeedle = async (req, res) => {
 
 exports.deleteAllCutting = async (req, res) => {
     try {
+        console.log('🔴 DELETE ALL CUTTING REQUEST RECEIVED');
         const result = await Cutting.deleteMany({});
+        console.log('✅ DELETE ALL CUTTING SUCCESS:', result);
         res.status(200).json({
             success: true,
             message: `Deleted ${result.deletedCount} cutting records`,
             deletedCount: result.deletedCount
         });
     } catch (error) {
+        console.error('❌ DELETE ALL CUTTING ERROR:', error);
         res.status(500).json({
             success: false,
             message: 'Error deleting all cutting data',
@@ -614,13 +619,16 @@ exports.deleteAllCutting = async (req, res) => {
 
 exports.deleteAllPacking = async (req, res) => {
     try {
+        console.log('🔴 DELETE ALL PACKING REQUEST RECEIVED');
         const result = await Packing.deleteMany({});
+        console.log('✅ DELETE ALL PACKING SUCCESS:', result);
         res.status(200).json({
             success: true,
             message: `Deleted ${result.deletedCount} packing records`,
             deletedCount: result.deletedCount
         });
     } catch (error) {
+        console.error('❌ DELETE ALL PACKING ERROR:', error);
         res.status(500).json({
             success: false,
             message: 'Error deleting all packing data',
@@ -631,13 +639,16 @@ exports.deleteAllPacking = async (req, res) => {
 
 exports.deleteAllOverlock = async (req, res) => {
     try {
+        console.log('🔴 DELETE ALL OVERLOCK REQUEST RECEIVED');
         const result = await Overlock.deleteMany({});
+        console.log('✅ DELETE ALL OVERLOCK SUCCESS:', result);
         res.status(200).json({
             success: true,
             message: `Deleted ${result.deletedCount} overlock records`,
             deletedCount: result.deletedCount
         });
     } catch (error) {
+        console.error('❌ DELETE ALL OVERLOCK ERROR:', error);
         res.status(500).json({
             success: false,
             message: 'Error deleting all overlock data',
@@ -648,13 +659,16 @@ exports.deleteAllOverlock = async (req, res) => {
 
 exports.deleteAllGrading = async (req, res) => {
     try {
+        console.log('🔴 DELETE ALL GRADING REQUEST RECEIVED');
         const result = await Grading.deleteMany({});
+        console.log('✅ DELETE ALL GRADING SUCCESS:', result);
         res.status(200).json({
             success: true,
             message: `Deleted ${result.deletedCount} grading records`,
             deletedCount: result.deletedCount
         });
     } catch (error) {
+        console.error('❌ DELETE ALL GRADING ERROR:', error);
         res.status(500).json({
             success: false,
             message: 'Error deleting all grading data',
@@ -665,13 +679,16 @@ exports.deleteAllGrading = async (req, res) => {
 
 exports.deleteAllSingleNeedle = async (req, res) => {
     try {
+        console.log('🔴 DELETE ALL SINGLE NEEDLE REQUEST RECEIVED');
         const result = await SingleNeedle.deleteMany({});
+        console.log('✅ DELETE ALL SINGLE NEEDLE SUCCESS:', result);
         res.status(200).json({
             success: true,
             message: `Deleted ${result.deletedCount} single needle records`,
             deletedCount: result.deletedCount
         });
     } catch (error) {
+        console.error('❌ DELETE ALL SINGLE NEEDLE ERROR:', error);
         res.status(500).json({
             success: false,
             message: 'Error deleting all single needle data',
