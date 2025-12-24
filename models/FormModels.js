@@ -197,6 +197,14 @@ const singleNeedleSchema = new mongoose.Schema({
     lotSize: { type: Number, required: true },
     status: String,
     sampleSize: Number,
+    acceptedMajor:String,
+    acceptedMinor:String,
+    acceptedCutting:String,
+    acceptedStitching:String,
+    acceptedPacking:String,
+    totalFaultsMajor:String,
+    totalFaultsMinor:String,
+    packingDescription:String,
     
     // Inspection Conclusion
     measurementConfirm: Boolean,
