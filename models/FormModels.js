@@ -193,7 +193,7 @@ const singleNeedleSchema = new mongoose.Schema({
     cartonMeasurement: String,
     
     // AQL Information
-    aqlLevel: { type: String, default: '2.5' },
+    aqlLevel: { type: String, default: '' },
     lotSize: { type: Number, required: true },
     status: String,
     sampleSize: Number,
