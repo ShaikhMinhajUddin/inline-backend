@@ -1,4 +1,4 @@
-// server.js - FIXED FOR RAILWAY
+// server.js - FIXED CORS FOR RAILWAY
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -7,11 +7,22 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware
+// ========== FIXED CORS MIDDLEWARE ==========
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://factory-management-system.vercel.app'],
-  credentials: true
+  origin: [
+    'https://alkaram-inline-inspection.netlify.app',  // آپ کا Netlify URL
+    'http://localhost:3000',  // Local development
+    'http://localhost:5173',  // Vite development
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'Origin', 'X-Requested-With'],
+  exposedHeaders: ['Content-Length', 'Content-Type', 'Authorization'],
+  maxAge: 86400 // 24 hours
 }));
+
+// Handle preflight requests
+app.options('*', cors());
 
 app.use(bodyParser.json({ limit: '10mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
@@ -52,6 +63,7 @@ app.use('/api/forms', formRoutes);
 
 // Test Route
 app.get('/', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://alkaram-inline-inspection.netlify.app');
   res.json({ 
     message: 'Factory Management System API is running!',
     status: 'active',
@@ -91,6 +103,7 @@ app.get('/health', (req, res) => {
     3: 'disconnecting'
   };
   
+  res.setHeader('Access-Control-Allow-Origin', 'https://alkaram-inline-inspection.netlify.app');
   res.status(200).json({ 
     status: 'healthy',
     timestamp: new Date().toISOString(),
@@ -102,6 +115,7 @@ app.get('/health', (req, res) => {
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error('🔥 Server Error:', err.stack);
+  res.setHeader('Access-Control-Allow-Origin', 'https://alkaram-inline-inspection.netlify.app');
   res.status(500).json({
     success: false,
     message: 'Something went wrong!',
@@ -111,6 +125,7 @@ app.use((err, req, res, next) => {
 
 // 404 handler
 app.use('*', (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', 'https://alkaram-inline-inspection.netlify.app');
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found`
@@ -126,6 +141,7 @@ app.listen(PORT, HOST, () => {
   console.log(`🌐 External URL: https://data-production-fc00.up.railway.app`);
   console.log(`🔧 Environment: ${process.env.NODE_ENV || 'development'}`);
   console.log(`📊 Database Connection: ${mongoose.connection.readyState === 1 ? '✅ Connected' : '❌ Disconnected'}`);
+  console.log(`🔒 CORS Enabled for: https://alkaram-inline-inspection.netlify.app`);
 });
 
 // Handle process termination
