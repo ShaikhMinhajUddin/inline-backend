@@ -1,4 +1,4 @@
-// models/FormModels.js - COMPLETELY UPDATED
+// models/FormModels.js - UPDATED WITH CORRECT FIELD NAMES
 const mongoose = require('mongoose');
 
 // Cutting Form Schema
@@ -54,7 +54,7 @@ const packingSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-// ✅ FIXED Overlock Form Schema - All fields as numbers
+// Overlock Form Schema
 const overlockSchema = new mongoose.Schema({
     factoryUnit: { type: String },
     ppNo: { type: String },
@@ -69,7 +69,7 @@ const overlockSchema = new mongoose.Schema({
     colour: { type: String },
     spi: { type: Number, default: 0 },
     
-    // All defects as numbers (not booleans)
+    // All defects as numbers
     brokenStitch: { type: Number, default: 0 },
     openCorner: { type: Number, default: 0 },
     slipStitch: { type: Number, default: 0 },
@@ -158,12 +158,12 @@ const gradingSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-// ✅ UPDATED Single Needle Form Schema - NEW FIELDS
+// Single Needle Form Schema - NEW FIELDS
 const singleNeedleSchema = new mongoose.Schema({
-    // Date fields
-    Year: { type: Number, required: true },
-    Month: { type: Number, required: true },
-    Date: { type: Number, required: true },
+    // Date fields - EXACT NAMES FROM FRONTEND
+    Year: { type: Number, required: true, min: 2000, max: 2100 },
+    Month: { type: Number, required: true, min: 1, max: 12 },
+    Date: { type: Number, required: true, min: 1, max: 31 },
     
     // Unit and department
     Unit: { type: String, required: true },
@@ -176,55 +176,55 @@ const singleNeedleSchema = new mongoose.Schema({
     
     // Product details
     Item: { type: String, required: true },
-    Size: { type: String },
+    Size: { type: String, default: '' },
     
     // Quantity information
-    ReadyCartons: { type: Number, default: 0 },
-    ReadyPacksPcs: { type: Number, default: 0 },
-    TotalInspection: { type: Number, default: 0 },
-    SampleSize: { type: Number, default: 0 },
+    ReadyCartons: { type: Number, default: 0, min: 0 },
+    ReadyPacksPcs: { type: Number, default: 0, min: 0 },
+    TotalInspection: { type: Number, default: 0, min: 0 },
+    SampleSize: { type: Number, default: 0, min: 0 },
     
-    // Quality metrics
-    MAJORFOUND: { type: Number, default: 0 },
-    MINORFOUND: { type: Number, default: 0 },
-    OQLPercentMajor: { type: Number, default: 0 },
-    PASS: { type: Number, default: 0 },
-    FAIL: { type: Number, default: 0 },
-    FailureReason: { type: String },
+    // Quality metrics - EXACT NAMES FROM FRONTEND
+    MAJORFOUND: { type: Number, default: 0, min: 0 },
+    MINORFOUND: { type: Number, default: 0, min: 0 },
+    OQLPercentMajor: { type: Number, default: 0, min: 0, max: 100 },
+    PASS: { type: Number, default: 0, min: 0 },
+    FAIL: { type: Number, default: 0, min: 0 },
+    FailureReason: { type: String, default: '' },
     
-    // Defects - Stitching
-    SkipJumpStitch: { type: Number, default: 0 },
-    SlipStitch: { type: Number, default: 0 },
-    RunoffStitch: { type: Number, default: 0 },
-    BrokenStitch: { type: Number, default: 0 },
+    // Defects - Stitching - EXACT NAMES FROM FRONTEND
+    SkipJumpStitch: { type: Number, default: 0, min: 0 },
+    SlipStitch: { type: Number, default: 0, min: 0 },
+    RunoffStitch: { type: Number, default: 0, min: 0 },
+    BrokenStitch: { type: Number, default: 0, min: 0 },
     
     // Defects - Construction
-    OpenInsecureCorner: { type: Number, default: 0 },
-    RawEdge: { type: Number, default: 0 },
+    OpenInsecureCorner: { type: Number, default: 0, min: 0 },
+    RawEdge: { type: Number, default: 0, min: 0 },
     
     // Defects - Labeling
-    MissingLabel: { type: Number, default: 0 },
-    InsecureLabel: { type: Number, default: 0 },
-    WrongLabel: { type: Number, default: 0 },
-    SlantLabel: { type: Number, default: 0 },
+    MissingLabel: { type: Number, default: 0, min: 0 },
+    InsecureLabel: { type: Number, default: 0, min: 0 },
+    WrongLabel: { type: Number, default: 0, min: 0 },
+    SlantLabel: { type: Number, default: 0, min: 0 },
     
     // Defects - General
-    StainDirtMark: { type: Number, default: 0 },
-    UncutThread: { type: Number, default: 0 },
-    PulledPile: { type: Number, default: 0 },
-    Weaving: { type: Number, default: 0 },
-    OverlapExcessFabric: { type: Number, default: 0 },
-    SizeVariation: { type: Number, default: 0 },
-    ShadeVariation: { type: Number, default: 0 },
-    DamageFabric: { type: Number, default: 0 },
-    YarnContamination: { type: Number, default: 0 },
-    StitchOnPile: { type: Number, default: 0 },
-    Pleats: { type: Number, default: 0 },
-    PoorShape: { type: Number, default: 0 },
-    DirtMarkStain: { type: Number, default: 0 },
-    SingleUntrimmedThread: { type: Number, default: 0 },
-    YarnContamination2: { type: Number, default: 0 },
-    LASSAR: { type: Number, default: 0 },
+    StainDirtMark: { type: Number, default: 0, min: 0 },
+    UncutThread: { type: Number, default: 0, min: 0 },
+    PulledPile: { type: Number, default: 0, min: 0 },
+    Weaving: { type: Number, default: 0, min: 0 },
+    OverlapExcessFabric: { type: Number, default: 0, min: 0 },
+    SizeVariation: { type: Number, default: 0, min: 0 },
+    ShadeVariation: { type: Number, default: 0, min: 0 },
+    DamageFabric: { type: Number, default: 0, min: 0 },
+    YarnContamination: { type: Number, default: 0, min: 0 },
+    StitchOnPile: { type: Number, default: 0, min: 0 },
+    Pleats: { type: Number, default: 0, min: 0 },
+    PoorShape: { type: Number, default: 0, min: 0 },
+    DirtMarkStain: { type: Number, default: 0, min: 0 },
+    SingleUntrimmedThread: { type: Number, default: 0, min: 0 },
+    YarnContamination2: { type: Number, default: 0, min: 0 },
+    LASSAR: { type: Number, default: 0, min: 0 },
     
     createdAt: { type: Date, default: Date.now }
 });

@@ -1,4 +1,4 @@
-// controllers/formController.js - COMPLETE CLEAN VERSION WITH DELETE ALL
+// controllers/formController.js - UPDATED FOR NEW FIELDS
 const { Cutting, Packing, Overlock, Grading, SingleNeedle } = require('../models/FormModels');
 
 // ========== CREATE FORM CONTROLLERS ==========
@@ -86,19 +86,106 @@ exports.createGrading = async (req, res) => {
 exports.createSingleNeedle = async (req, res) => {
     try {
         console.log('📤 Creating single needle data:', req.body);
-        const singleNeedleData = new SingleNeedle(req.body);
+        
+        // Transform data for new schema with proper field mapping
+        const transformedData = {
+            // Date fields - REQUIRED
+            Year: req.body.Year || new Date().getFullYear(),
+            Month: req.body.Month || new Date().getMonth() + 1,
+            Date: req.body.Date || new Date().getDate(),
+            
+            // Unit and department - REQUIRED
+            Unit: req.body.Unit || 'Not Specified',
+            Department: req.body.Department || 'Not Specified',
+            
+            // QA and customer details - REQUIRED
+            QAName: req.body.QAName || 'Not Specified',
+            Customer: req.body.Customer || 'Not Specified',
+            PPNo: req.body.PPNo || 'Not Specified',
+            
+            // Product details - REQUIRED
+            Item: req.body.Item || 'Not Specified',
+            Size: req.body.Size || '',
+            
+            // Quantity information
+            ReadyCartons: Number(req.body.ReadyCartons) || 0,
+            ReadyPacksPcs: Number(req.body.ReadyPacksPcs) || 0,
+            TotalInspection: Number(req.body.TotalInspection) || 0,
+            SampleSize: Number(req.body.SampleSize) || 0,
+            
+            // Quality metrics
+            MAJORFOUND: Number(req.body.MAJORFOUND) || 0,
+            MINORFOUND: Number(req.body.MINORFOUND) || 0,
+            OQLPercentMajor: Number(req.body.OQLPercentMajor) || 0,
+            PASS: Number(req.body.PASS) || 0,
+            FAIL: Number(req.body.FAIL) || 0,
+            FailureReason: req.body.FailureReason || '',
+            
+            // Defects - Stitching
+            SkipJumpStitch: Number(req.body.SkipJumpStitch) || 0,
+            SlipStitch: Number(req.body.SlipStitch) || 0,
+            RunoffStitch: Number(req.body.RunoffStitch) || 0,
+            BrokenStitch: Number(req.body.BrokenStitch) || 0,
+            
+            // Defects - Construction
+            OpenInsecureCorner: Number(req.body.OpenInsecureCorner) || 0,
+            RawEdge: Number(req.body.RawEdge) || 0,
+            
+            // Defects - Labeling
+            MissingLabel: Number(req.body.MissingLabel) || 0,
+            InsecureLabel: Number(req.body.InsecureLabel) || 0,
+            WrongLabel: Number(req.body.WrongLabel) || 0,
+            SlantLabel: Number(req.body.SlantLabel) || 0,
+            
+            // Defects - General
+            StainDirtMark: Number(req.body.StainDirtMark) || 0,
+            UncutThread: Number(req.body.UncutThread) || 0,
+            PulledPile: Number(req.body.PulledPile) || 0,
+            Weaving: Number(req.body.Weaving) || 0,
+            OverlapExcessFabric: Number(req.body.OverlapExcessFabric) || 0,
+            SizeVariation: Number(req.body.SizeVariation) || 0,
+            ShadeVariation: Number(req.body.ShadeVariation) || 0,
+            DamageFabric: Number(req.body.DamageFabric) || 0,
+            YarnContamination: Number(req.body.YarnContamination) || 0,
+            StitchOnPile: Number(req.body.StitchOnPile) || 0,
+            Pleats: Number(req.body.Pleats) || 0,
+            PoorShape: Number(req.body.PoorShape) || 0,
+            DirtMarkStain: Number(req.body.DirtMarkStain) || 0,
+            SingleUntrimmedThread: Number(req.body.SingleUntrimmedThread) || 0,
+            YarnContamination2: Number(req.body.YarnContamination2) || 0,
+            LASSAR: Number(req.body.LASSAR) || 0,
+            
+            // Keep original createdAt
+            createdAt: new Date()
+        };
+        
+        console.log('📝 Transformed Data:', transformedData);
+        
+        const singleNeedleData = new SingleNeedle(transformedData);
         const savedData = await singleNeedleData.save();
+        
+        console.log('✅ Single Needle saved successfully:', savedData._id);
+        
         res.status(201).json({
             success: true,
-            message: 'Batch Audit form submitted successfully',
+            message: 'Single Needle inspection submitted successfully',
             data: savedData
         });
     } catch (error) {
         console.error('❌ Error creating single needle:', error);
+        console.error('❌ Full error:', {
+            name: error.name,
+            message: error.message,
+            errors: error.errors,
+            code: error.code,
+            stack: error.stack
+        });
+        
         res.status(500).json({
             success: false,
-            message: 'Error submitting Batch Audit form',
-            error: error.message
+            message: 'Error submitting Single Needle form',
+            error: error.message,
+            details: process.env.NODE_ENV === 'development' ? error.stack : undefined
         });
     }
 };
@@ -203,7 +290,7 @@ exports.getSingleNeedleById = async (req, res) => {
         if (!singleNeedleData) {
             return res.status(404).json({
                 success: false,
-                message: 'Batch Audit record not found'
+                message: 'Single Needle inspection not found'
             });
         }
         res.status(200).json({
@@ -214,7 +301,7 @@ exports.getSingleNeedleById = async (req, res) => {
         console.error('❌ Error getting single needle by id:', error);
         res.status(500).json({
             success: false,
-            message: 'Error fetching Batch Audit record',
+            message: 'Error fetching Single Needle inspection',
             error: error.message
         });
     }
@@ -275,9 +362,10 @@ exports.getDashboardStats = async (req, res) => {
 
         const totalToday = cutting.length + packing.length + overlock.length + grading.length + singleNeedle.length;
         
-        const totalInspected = grading.reduce((sum, item) => sum + (item.inspection || 0), 0);
+        // Calculate quality score from all forms
+        const totalInspections = grading.reduce((sum, item) => sum + (item.inspection || 0), 0);
         const totalPassed = grading.reduce((sum, item) => sum + (item.pass || 0), 0);
-        const qualityScore = totalInspected > 0 ? Math.round((totalPassed / totalInspected) * 100) : 0;
+        const qualityScore = totalInspections > 0 ? Math.round((totalPassed / totalInspections) * 100) : 0;
 
         res.status(200).json({
             success: true,
@@ -389,7 +477,7 @@ exports.getAllSingleNeedle = async (req, res) => {
         console.error('❌ Error getting all single needle:', error);
         res.status(500).json({
             success: false,
-            message: 'Error fetching Batch Audit data',
+            message: 'Error fetching Single Needle inspections',
             error: error.message
         });
     }
@@ -486,29 +574,79 @@ exports.updateGrading = async (req, res) => {
 
 exports.updateSingleNeedle = async (req, res) => {
     try {
+        // Transform data for update
+        const updateData = {
+            Year: req.body.Year,
+            Month: req.body.Month,
+            Date: req.body.Date,
+            Unit: req.body.Unit,
+            Department: req.body.Department,
+            QAName: req.body.QAName,
+            Customer: req.body.Customer,
+            PPNo: req.body.PPNo,
+            Item: req.body.Item,
+            Size: req.body.Size,
+            ReadyCartons: req.body.ReadyCartons,
+            ReadyPacksPcs: req.body.ReadyPacksPcs,
+            TotalInspection: req.body.TotalInspection,
+            SampleSize: req.body.SampleSize,
+            MAJORFOUND: req.body.MAJORFOUND,
+            MINORFOUND: req.body.MINORFOUND,
+            OQLPercentMajor: req.body.OQLPercentMajor,
+            PASS: req.body.PASS,
+            FAIL: req.body.FAIL,
+            FailureReason: req.body.FailureReason,
+            SkipJumpStitch: req.body.SkipJumpStitch,
+            SlipStitch: req.body.SlipStitch,
+            RunoffStitch: req.body.RunoffStitch,
+            BrokenStitch: req.body.BrokenStitch,
+            OpenInsecureCorner: req.body.OpenInsecureCorner,
+            RawEdge: req.body.RawEdge,
+            MissingLabel: req.body.MissingLabel,
+            InsecureLabel: req.body.InsecureLabel,
+            WrongLabel: req.body.WrongLabel,
+            SlantLabel: req.body.SlantLabel,
+            StainDirtMark: req.body.StainDirtMark,
+            UncutThread: req.body.UncutThread,
+            PulledPile: req.body.PulledPile,
+            Weaving: req.body.Weaving,
+            OverlapExcessFabric: req.body.OverlapExcessFabric,
+            SizeVariation: req.body.SizeVariation,
+            ShadeVariation: req.body.ShadeVariation,
+            DamageFabric: req.body.DamageFabric,
+            YarnContamination: req.body.YarnContamination,
+            StitchOnPile: req.body.StitchOnPile,
+            Pleats: req.body.Pleats,
+            PoorShape: req.body.PoorShape,
+            DirtMarkStain: req.body.DirtMarkStain,
+            SingleUntrimmedThread: req.body.SingleUntrimmedThread,
+            YarnContamination2: req.body.YarnContamination2,
+            LASSAR: req.body.LASSAR
+        };
+        
         const updatedData = await SingleNeedle.findByIdAndUpdate(
             req.params.id,
-            req.body,
+            updateData,
             { new: true, runValidators: true }
         );
         
         if (!updatedData) {
             return res.status(404).json({
                 success: false,
-                message: 'Batch Audit record not found'
+                message: 'Single Needle inspection not found'
             });
         }
         
         res.status(200).json({
             success: true,
-            message: 'Batch Audit record updated successfully',
+            message: 'Single Needle inspection updated successfully',
             data: updatedData
         });
     } catch (error) {
         console.error('❌ Error updating single needle:', error);
         res.status(500).json({
             success: false,
-            message: 'Error updating Batch Audit record',
+            message: 'Error updating Single Needle inspection',
             error: error.message
         });
     }
@@ -584,7 +722,7 @@ exports.deleteSingleNeedle = async (req, res) => {
         await SingleNeedle.findByIdAndDelete(req.params.id);
         res.status(200).json({ 
             success: true, 
-            message: "Batch Audit record deleted successfully" 
+            message: "Single Needle inspection deleted successfully" 
         });
     } catch (error) {
         console.error('❌ Error deleting single needle:', error);
@@ -684,14 +822,14 @@ exports.deleteAllSingleNeedle = async (req, res) => {
         console.log('✅ DELETE ALL SINGLE NEEDLE SUCCESS:', result);
         res.status(200).json({
             success: true,
-            message: `Deleted ${result.deletedCount} single needle records`,
+            message: `Deleted ${result.deletedCount} Single Needle inspections`,
             deletedCount: result.deletedCount
         });
     } catch (error) {
         console.error('❌ DELETE ALL SINGLE NEEDLE ERROR:', error);
         res.status(500).json({
             success: false,
-            message: 'Error deleting all single needle data',
+            message: 'Error deleting all Single Needle inspections',
             error: error.message
         });
     }
