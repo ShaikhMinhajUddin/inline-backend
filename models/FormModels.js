@@ -1,4 +1,4 @@
-// models/FormModels.js - FIXED OVERLOCK SCHEMA
+// models/FormModels.js - COMPLETELY UPDATED
 const mongoose = require('mongoose');
 
 // Cutting Form Schema
@@ -158,48 +158,74 @@ const gradingSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-// Single Needle Form Schema
+// ✅ UPDATED Single Needle Form Schema - NEW FIELDS
 const singleNeedleSchema = new mongoose.Schema({
-    date: { type: Date, default: Date.now },
-    buyerName: { type: String },
-    locationName: { type: String },
-    poNumber: { type: String },
-    description: String,
-    color: { type: String },
-    itemStyle: { type: String },
-    casePack: String,
-    quantityOrderedCTN: { type: Number, default: 0 },
-    quantityAvailableCTN: { type: Number, default: 0 },
-    balanceQuantityCTN: { type: Number, default: 0 },
-    balanceQuantityPcs: { type: Number, default: 0 },
-    cartonMeasurement: String,
-    aqlLevel: String,
-    lotSize: { type: Number, default: 0 },
-    status: String,
-    sampleSize: { type: Number, default: 0 },
-    acceptedMajor: { type: String, default: '' },
-    acceptedMinor: { type: String, default: '' },
-    acceptedCutting: { type: String, default: '' },
-    acceptedStitching: { type: String, default: '' },
-    acceptedPacking: { type: String, default: '' },
-    totalFaultsMajor: { type: String, default: '' },
-    totalFaultsMinor: { type: String, default: '' },
-    packingDescription: String,
-    measurementConfirm: { type: String, default: '' },
-    onsiteCheckConfirm: { type: String, default: '' },
-    packingCheckConfirm: { type: String, default: '' },
-    visualCheckConfirm: { type: String, default: '' },
-    acceptedMajorCutting: { type: String, default: '' },
-    acceptedMinorCutting: { type: String, default: '' },
-    acceptedMajorStitching: { type: String, default: '' },
-    acceptedMinorStitching: { type: String, default: '' },
-    acceptedMajorPacking: { type: String, default: '' },
-    acceptedMinorPacking: { type: String, default: '' },
-    totalMajorFaults: { type: String, default: '' },
-    totalMinorFaults: { type: String, default: '' },
-    remarks: String,
-    inspectorName: { type: String },
-    inspectionDate: { type: Date, default: Date.now },
+    // Date fields
+    Year: { type: Number, required: true },
+    Month: { type: Number, required: true },
+    Date: { type: Number, required: true },
+    
+    // Unit and department
+    Unit: { type: String, required: true },
+    Department: { type: String, required: true },
+    
+    // QA and customer details
+    QAName: { type: String, required: true },
+    Customer: { type: String, required: true },
+    PPNo: { type: String, required: true },
+    
+    // Product details
+    Item: { type: String, required: true },
+    Size: { type: String },
+    
+    // Quantity information
+    ReadyCartons: { type: Number, default: 0 },
+    ReadyPacksPcs: { type: Number, default: 0 },
+    TotalInspection: { type: Number, default: 0 },
+    SampleSize: { type: Number, default: 0 },
+    
+    // Quality metrics
+    MAJORFOUND: { type: Number, default: 0 },
+    MINORFOUND: { type: Number, default: 0 },
+    OQLPercentMajor: { type: Number, default: 0 },
+    PASS: { type: Number, default: 0 },
+    FAIL: { type: Number, default: 0 },
+    FailureReason: { type: String },
+    
+    // Defects - Stitching
+    SkipJumpStitch: { type: Number, default: 0 },
+    SlipStitch: { type: Number, default: 0 },
+    RunoffStitch: { type: Number, default: 0 },
+    BrokenStitch: { type: Number, default: 0 },
+    
+    // Defects - Construction
+    OpenInsecureCorner: { type: Number, default: 0 },
+    RawEdge: { type: Number, default: 0 },
+    
+    // Defects - Labeling
+    MissingLabel: { type: Number, default: 0 },
+    InsecureLabel: { type: Number, default: 0 },
+    WrongLabel: { type: Number, default: 0 },
+    SlantLabel: { type: Number, default: 0 },
+    
+    // Defects - General
+    StainDirtMark: { type: Number, default: 0 },
+    UncutThread: { type: Number, default: 0 },
+    PulledPile: { type: Number, default: 0 },
+    Weaving: { type: Number, default: 0 },
+    OverlapExcessFabric: { type: Number, default: 0 },
+    SizeVariation: { type: Number, default: 0 },
+    ShadeVariation: { type: Number, default: 0 },
+    DamageFabric: { type: Number, default: 0 },
+    YarnContamination: { type: Number, default: 0 },
+    StitchOnPile: { type: Number, default: 0 },
+    Pleats: { type: Number, default: 0 },
+    PoorShape: { type: Number, default: 0 },
+    DirtMarkStain: { type: Number, default: 0 },
+    SingleUntrimmedThread: { type: Number, default: 0 },
+    YarnContamination2: { type: Number, default: 0 },
+    LASSAR: { type: Number, default: 0 },
+    
     createdAt: { type: Date, default: Date.now }
 });
 

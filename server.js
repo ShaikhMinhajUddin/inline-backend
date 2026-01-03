@@ -12,7 +12,6 @@ app.use(cors({
   origin: [
     'https://alkaram-inline-inspection.netlify.app',  // آپ کا Netlify URL
     'http://localhost:3000',  // Local development
-    'http://localhost:5173',  // Vite development
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
