@@ -1,6 +1,6 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm run build"
+buildCommand = "npm install --only=production"
 
 [deploy]
 startCommand = "node --max-old-space-size=2048 server.js"
@@ -10,5 +10,5 @@ healthCheckTimeout = 60
 [[services]]
 name = "api"
 port = 8080
-memory = 1024  # Increase to 1GB
+memory = 1024
 cpu = 0.5
